@@ -23,14 +23,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   console.error('MongoDB接続エラー:', err);
 });
 
-// 静的ファイルの提供
-app.use(express.static(path.join(__dirname, 'build')));
-
-// すべてのルートをReactアプリにフォールバック
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
 // ユーザーモデル
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },

@@ -1,0 +1,121 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.infoCard {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: bold;
+  color: #555;
+  flex-basis: 30%;
+}
+
+.value {
+  color: #333;
+  flex-basis: 70%;
+  text-align: right;
+  word-break: break-all;
+}
+
+.hashLink {
+  color: #4a90e2;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.hashLink:hover {
+  color: #3a7bc8;
+  text-decoration: underline;
+}
+
+.loading {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+  padding: 20px;
+}
+
+.error {
+  color: #ff3333;
+  background-color: #ffe6e6;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.notFound {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+  padding: 20px;
+  background-color: #f1f3f5;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .infoRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .label {
+    margin-bottom: 5px;
+  }
+
+  .value {
+    text-align: left;
+  }
+}
+
+.historyButton {
+  display: block;
+  width: 200px;
+  margin: 20px auto 0;
+  padding: 10px;
+  background-color: #4a90e2;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.historyButton:hover {
+  background-color: #3a7bc8;
+}
+

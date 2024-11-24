@@ -1,0 +1,196 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.title {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 2px solid #4a90e2;
+  padding-bottom: 10px;
+}
+
+.userInfo {
+  text-align: left;
+  padding: 0 20px;
+}
+
+.userInfoItem {
+  margin: 10px 0;
+  color: #555;
+  font-size: 16px;
+}
+
+.username {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 15px 0;
+}
+
+.userId {
+  font-size: 14px;
+  color: #777;
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+.userInfo p {
+  margin: 10px 0;
+  color: #555;
+  font-size: 16px;
+}
+
+.balanceInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.balance {
+  text-align: center;
+  flex: 1;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.balance h3 {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.balanceAmount {
+  font-size: 28px;
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+.currency {
+  font-size: 16px;
+  color: #777;
+  margin-left: 5px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  margin-right: 10px;
+  color: #333;
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #3a7bc8;
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.transactionTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.transactionTable th,
+.transactionTable td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.transactionTable th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.sendTransaction {
+  background-color: #fff8e1;
+}
+
+.receiveTransaction {
+  background-color: #e8f5e9;
+}
+
+.noTransactions {
+  text-align: center;
+  color: #777;
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  .balanceInfo {
+    flex-direction: column;
+  }
+
+  .balance {
+margin-bottom: 15px;
+  }
+
+  .transactionTable th,
+  .transactionTable td {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+

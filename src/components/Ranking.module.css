@@ -1,0 +1,139 @@
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .error {
+    color: #ff3333;
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #ffe6e6;
+    border-radius: 5px;
+  }
+  
+  .list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .item {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .rank {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+    min-width: 50px;
+  }
+  
+  .icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  
+  .rankNumber {
+    font-size: 18px;
+    font-weight: bold;
+    color: #666;
+  }
+  
+  .info {
+    flex-grow: 1;
+  }
+  
+  .username {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    color: #333;
+  }
+  
+  .balance {
+    font-size: 16px;
+    color: #4a90e2;
+    margin: 0;
+    font-weight: 500;
+  }
+  
+  .empty {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+  }
+  
+  .rank1 {
+    background-color: #fef9e7;
+    border: 2px solid #f1c40f;
+  }
+  
+  .rank2 {
+    background-color: #f8f9f9;
+    border: 2px solid #bdc3c7;
+  }
+  
+  .rank3 {
+    background-color: #fdf2e9;
+    border: 2px solid #d35400;
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 15px;
+    }
+  
+    .title {
+      font-size: 24px;
+    }
+  
+    .item {
+      padding: 10px;
+    }
+  
+    .icon {
+      font-size: 20px;
+    }
+  
+    .rankNumber {
+      font-size: 16px;
+    }
+  
+    .username {
+      font-size: 16px;
+    }
+  
+    .balance {
+      font-size: 14px;
+    }
+  }
+  
+  

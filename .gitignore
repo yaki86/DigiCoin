@@ -34,6 +34,7 @@ yarn-error.log*
 # AWS Lambda
 lambda/**/node_modules/
 lambda/**/.env
+lambda/**/**.zip
 
 # その他
 *.log

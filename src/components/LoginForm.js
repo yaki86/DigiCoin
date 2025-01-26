@@ -1,62 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signIn, signUp, signOut } from '@aws-amplify/auth';
 import styles from './LoginForm.module.css';
 
 export default function LoginForm({ setIsLoggedIn }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [affiliationCode, setAffiliationCode] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const clearSession = async () => {
+      try {
+        await signOut();
+        setIsLoggedIn(false);
+      } catch (error) {
+        console.error('サインアウトエラー:', error);
+      }
+    };
+    clearSession();
+  }, [setIsLoggedIn]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const url = isLogin ? '/api/login' : '/api/register';
-
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(isLogin ? { username, password } : { username, password, affiliationCode }),
-      });
-
-      let data;
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        data = await response.json();
-      } else {
-        data = await response.text();
-        console.error('Expected JSON response but got:', data);
-        throw new Error('サーバーからの応答が不正です');
-      }
-
-      if (!response.ok) {
-        throw new Error(data.message || 'エラーが発生しました');
-      }
-
       if (isLogin) {
-        localStorage.setItem('token', data.token);
-        setIsLoggedIn(true);  // ここでログイン状態を更新
-        navigate('/send');
+        const { isSignedIn } = await signIn({ username, password });
+        if (isSignedIn) {
+          setIsLoggedIn(true);
+          navigate('/send');
+        }
       } else {
-        setIsLogin(true);
+        await signUp({
+          username,
+          password,
+          options: {
+            userAttributes: {
+              email: username
+            }
+          }
+        });
         setError('登録が完了しました。ログインしてください。');
+        setIsLogin(true);
       }
     } catch (error) {
-      console.error('Error:', error);
-      setError(error.message || 'リクエストの処理中にエラーが発生しました');
+      console.error('認証エラー:', error);
+      setError(getErrorMessage(error));
+    }
+  };
+
+  const getErrorMessage = (error) => {
+    switch (error.name) {
+      case 'NotAuthorizedException':
+        return 'ユーザー名またはパスワードが正しくありません。';
+      case 'UserNotFoundException':
+        return 'ユーザーが見つかりません。';
+      case 'UserNotConfirmedException':
+        return 'ユーザーの確認が完了していません。';
+      default:
+        return '認証中にエラーが発生しました。もう一度お試しください。';
     }
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        <h1 className={styles.title}>{isLogin ? 'ログイン' : '新規登録'}</h1>
+        <h2 className={styles.title}>
+          {isLogin ? 'ログイン' : '新規登録'}
+        </h2>
         {error && <p className={styles.error}>{error}</p>}
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
@@ -68,6 +82,7 @@ export default function LoginForm({ setIsLoggedIn }) {
               onChange={(e) => setUsername(e.target.value)}
               required
               className={styles.input}
+              autoComplete={isLogin ? "username" : "new-username"}
             />
           </div>
           <div className={styles.formGroup}>
@@ -79,31 +94,20 @@ export default function LoginForm({ setIsLoggedIn }) {
               onChange={(e) => setPassword(e.target.value)}
               required
               className={styles.input}
+              autoComplete={isLogin ? "current-password" : "new-password"}
             />
           </div>
-          {!isLogin && (
-            <div className={styles.formGroup}>
-              <label htmlFor="affiliationCode" className={styles.label}>所属コード:</label>
-              <input
-                type="text"
-                id="affiliationCode"
-                value={affiliationCode}
-                onChange={(e) => setAffiliationCode(e.target.value)}
-                required
-                className={styles.input}
-              />
-            </div>
-          )}
           <button type="submit" className={styles.submitButton}>
             {isLogin ? 'ログイン' : '登録'}
           </button>
+          <button
+            type="button"
+            onClick={() => setIsLogin(!isLogin)}
+            className={styles.toggleButton}
+          >
+            {isLogin ? '新規登録はこちら' : 'ログインはこちら'}
+          </button>
         </form>
-        <button
-          className={styles.toggleButton}
-          onClick={() => setIsLogin(!isLogin)}
-        >
-          {isLogin ? '新規登録はこちら' : 'ログインはこちら'}
-        </button>
       </div>
     </div>
   );

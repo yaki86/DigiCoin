@@ -1,81 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { getCurrentUser } from '@aws-amplify/auth';
 import LoginForm from './components/LoginForm';
 import SendCoin from './components/SendCoin';
-import Ranking from './components/Ranking';
-import AllHistory from './components/AllHistory';
-import TransactionInfo from './components/TransactionInfo';
-import PrivateRoute from './components/PrivateRoute';
+import './App.css';
 
-function NavBar({ isLoggedIn, setIsLoggedIn }) {
-  const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    navigate('/');
-    setIsMenuOpen(false);
-  };
-
-  const handleLogoClick = (e) => {
-    e.preventDefault();
-    navigate(isLoggedIn ? '/send' : '/');
-    setIsMenuOpen(false);
-  };
-
-  const toggleMenu = () => {
-    setIsMenuOpen(prevState => !prevState);
-  };
-
-  return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <a href="/" onClick={handleLogoClick} className="nav-logo">DigiCoin</a>
-        <div className="nav-right">
-          <button className="menu-toggle" onClick={toggleMenu}>
-            {isMenuOpen ? '✕' : '☰'}
-          </button>
-          <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
-            {isLoggedIn ? (
-              <>
-                <Link to="/send" onClick={() => setIsMenuOpen(false)}>コイン送付</Link>
-                <Link to="/ranking" onClick={() => setIsMenuOpen(false)}>ランキング</Link>
-                <Link to="/history" onClick={() => setIsMenuOpen(false)}>全履歴</Link>
-                <button onClick={handleLogout} className="logout-button">ログアウト</button>
-              </>
-            ) : (
-              <Link to="/" onClick={() => setIsMenuOpen(false)}>ログイン</Link>
-            )}
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
+const router = {
+  future: {
+    v7_relativeSplatPath: true
+  }
+};
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
+    checkAuthState();
   }, []);
 
+  const checkAuthState = async () => {
+    try {
+      await getCurrentUser();
+      setIsLoggedIn(true);
+    } catch (error) {
+      setIsLoggedIn(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <Router>
-      <div className="app">
-        <NavBar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+    <BrowserRouter future={router.future}>
+      <div className="App">
         <Routes>
-          <Route path="/" element={<LoginForm setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/send" element={<PrivateRoute><SendCoin /></PrivateRoute>} />
-          <Route path="/ranking" element={<PrivateRoute><Ranking /></PrivateRoute>} />
-          <Route path="/history" element={<PrivateRoute><AllHistory /></PrivateRoute>} />
-          <Route path="/transaction/:id" element={<PrivateRoute><TransactionInfo /></PrivateRoute>} />
+          <Route 
+            path="/" 
+            element={
+              isLoggedIn ? 
+                <Navigate to="/send" replace /> : 
+                <LoginForm setIsLoggedIn={setIsLoggedIn} />
+            } 
+          />
+          <Route 
+            path="/send" 
+            element={
+              isLoggedIn ? 
+                <SendCoin /> : 
+                <Navigate to="/" replace />
+            } 
+          />
         </Routes>
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 

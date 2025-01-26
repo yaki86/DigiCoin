@@ -1,0 +1,20 @@
+{
+    "name": "sendCoin",
+    "version": "1.0.0",
+    "description": "A Lambda function for sending DigiCoin transactions.",
+    "main": "index.mjs",
+    "scripts": {
+      "start": "node index.mjs"
+    },
+    "author": "Your Name",
+    "license": "MIT",
+    "dependencies": {
+      "aws-sdk": "^2.1234.0",
+      "ethers": "^5.7.2",
+      "dotenv": "^10.0.0",
+      "@aws-sdk/client-dynamodb": "^3.x.x",
+      "@aws-sdk/lib-dynamodb": "^3.x.x",
+      "@aws-sdk/client-secrets-manager": "^3.x.x",
+      "@aws-sdk/client-ssm": "^3.x.x"
+    }
+  }

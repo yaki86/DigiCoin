@@ -1,70 +1,89 @@
 .container {
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  position: relative;
+  background-color: #f0f8ff;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: -20px -20px 30px -20px;
+  padding: 20px;
+  background-color: #4a90e2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+}
+
+.signOutButton {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.signOutButton:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.signOutButton:active {
+  transform: translateY(0);
+}
+
+.signOutButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .card {
-  background-color: #ffffff;
+  background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding: 25px;
   margin-bottom: 30px;
 }
 
-.title {
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
-  text-align: center;
-  border-bottom: 2px solid #4a90e2;
-  padding-bottom: 10px;
-}
-
-.userInfo {
-  text-align: left;
-  padding: 0 20px;
-}
-
-.userInfoItem {
-  margin: 10px 0;
-  color: #555;
-  font-size: 16px;
-}
-
-.username {
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  margin: 15px 0;
-}
-
-.userId {
-  font-size: 14px;
-  color: #777;
-  font-weight: normal;
-  margin-left: 10px;
-}
-
-.userInfo p {
-  margin: 10px 0;
-  color: #555;
-  font-size: 16px;
-}
-
 .balanceInfo {
   display: flex;
-  justify-content: space-between;
-  margin-top: 30px;
+  justify-content: space-around;
+  gap: 20px;
 }
 
 .balance {
   text-align: center;
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   background-color: #f8f9fa;
   border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.balance:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.1);
 }
 
 .balance h3 {
@@ -74,9 +93,10 @@
 }
 
 .balanceAmount {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: bold;
   color: #4a90e2;
+  margin: 0;
 }
 
 .currency {
@@ -119,11 +139,18 @@
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .button:hover {
-  background-color: #3a7bc8;
+  background-color: #357abd;
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
 }
 
 .error {
@@ -179,12 +206,21 @@
     padding: 10px;
   }
 
+  .header {
+    margin: -10px -10px 20px -10px;
+    padding: 15px;
+  }
+
+  .headerTitle {
+    font-size: 20px;
+  }
+
   .balanceInfo {
     flex-direction: column;
   }
 
   .balance {
-margin-bottom: 15px;
+    margin-bottom: 15px;
   }
 
   .transactionTable th,
@@ -192,5 +228,165 @@ margin-bottom: 15px;
     padding: 8px;
     font-size: 14px;
   }
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  margin-right: 15px;
+}
+
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: #333;
+  margin: 5px 0;
+  transition: all 0.3s ease;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+.menu {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.menuHeader {
+  padding: 20px;
+  background-color: #4a90e2;
+  color: white;
+}
+
+.menuTitle {
+  margin: 0;
+  font-size: 20px;
+  color: white;
+}
+
+.menuOpen {
+  left: 0;
+}
+
+.menuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuItem {
+  display: block;
+  padding: 15px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  border-bottom: 1px solid #eee;
+}
+
+.menuItem:hover {
+  background-color: #f0f8ff;
+  color: #4a90e2;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.menuOpen + .overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.transactionList {
+  margin-top: 20px;
+}
+
+.transaction {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.transactionType {
+  background-color: #4a90e2;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-right: 15px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.transactionDetails {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.partner {
+  font-weight: 500;
+}
+
+.timestamp {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.button:disabled,
+.input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.userInfo {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.userDetail {
+  margin: 8px 0;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+}
+
+.userLabel {
+  color: #666;
+  min-width: 100px;
+  margin-right: 10px;
+}
+
+.userId, .username {
+  font-weight: 500;
+  color: #333;
 }
 

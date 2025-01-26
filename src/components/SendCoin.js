@@ -1,155 +1,299 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signOut, getCurrentUser, fetchAuthSession } from '@aws-amplify/auth';
+import { get, post } from '@aws-amplify/api';
+import HamburgerMenu from './HamburgerMenu';
 import styles from './SendCoin.module.css';
 
+const cloudFrontUrl = 'https://d26ws69lscjxgo.cloudfront.net';
+
 export default function SendCoin() {
-  const [username, setUsername] = useState('');
-  const [userId, setUserId] = useState('');
-  const [affiliationCode, setAffiliationCode] = useState('');
-  const [recipient, setRecipient] = useState('');
+  const navigate = useNavigate();
+  const [currentBalance, setCurrentBalance] = useState(0);
+  const [totalSent, setTotalSent] = useState(0);
+  const [recipientUsername, setRecipientUsername] = useState('');
+  const [recipientId, setRecipientId] = useState('');
   const [amount, setAmount] = useState('');
-  const [sendableBalance, setSendableBalance] = useState(0);
-  const [receivedBalance, setReceivedBalance] = useState(0);
+  const [message, setMessage] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [currentUserInfo, setCurrentUserInfo] = useState(null);
+  const [userList, setUserList] = useState([]);
+  const [userNames, setUserNames] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [users, setUsers] = useState([]);
-  const [transactions, setTransactions] = useState([]);
 
-  useEffect(() => {
-    fetchUserInfo().catch(console.error);
-    fetchUsers().catch(console.error);
-    fetchTransactions().catch(console.error);
-  }, []);
-
-  async function fetchUserInfo() {
+  // ユーザー情報の取得
+  const fetchCurrentUser = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('認証トークンがありません');
-      }
-      const response = await fetch('/api/user-info', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'ユーザー情報の取得に失敗しました');
-      }
-      const data = await response.json();
-      setUsername(data.username);
-      setUserId(data.userId);
-      setAffiliationCode(data.affiliationCode);
-      setSendableBalance(data.sendableBalance);
-      setReceivedBalance(data.receivedBalance);
-    } catch (err) {
-      console.error('ユーザー情報取得エラー:', err);
-      setError('ユーザー情報の取得に失敗しました: ' + err.message);
+      const user = await getCurrentUser();
+      setCurrentUserInfo(user);
+    } catch (error) {
+      console.error('ユーザー情報の取得エラー:', error);
     }
-  }
+  };
 
-  async function fetchUsers() {
+  // ユーザー情報と全ユーザー名の取得
+  const fetchUserData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/users', {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken.toString();
+      const shortUserId = session.userSub.split('-')[0];
+
+      const response = await fetch(`${cloudFrontUrl}/api/user?userId=${shortUserId}`, {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
+
       if (!response.ok) {
-        throw new Error('ユーザーリストの取得に失敗しました');
+        throw new Error('ユーザー情報の取得に失敗しました');
       }
-      const data = await response.json();
-      setUsers(data.users);
-    } catch (err) {
-      console.error('ユーザーリスト取得エラー:', err);
-      setError('ユーザーリストの取得に失敗しました。');
-    }
-  }
 
-  async function fetchTransactions() {
+      const result = await response.json();
+      const { userInfo, allUsers } = result;
+
+      if (userInfo) {
+        setCurrentUserInfo({
+          userId: userInfo.userId,
+          username: userInfo.name
+        });
+        setCurrentBalance(userInfo.balance);
+        setTotalSent(userInfo.total);
+      }
+
+      if (Array.isArray(allUsers)) {
+        // ユーザー一覧を状態として保存
+        setUserList(allUsers);  // 完全な情報を保持
+        // セレクトボックス用に名前のみの配列も保存
+        setUserNames(allUsers.map(user => user.name));  // 新しいstate
+      }
+
+    } catch (error) {
+      console.error('エラーの詳細:', error);
+      setError('ユーザー情報の取得に失敗しました');
+    }
+  };
+
+  // 取引履歴の取得
+  const fetchTransactions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/user-transactions', {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken.toString();
+      const shortUserId = session.userSub.split('-')[0];  // CognitoのIDを短縮
+
+      const response = await fetch(`${cloudFrontUrl}/api/transactions?userId=${shortUserId}`, {  // 短縮IDを使用
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
+
       if (!response.ok) {
         throw new Error('取引履歴の取得に失敗しました');
       }
-      const data = await response.json();
-      setTransactions(data.transactions);
-    } catch (err) {
-      console.error('取引履歴取得エラー:', err);
-      setError('取引履歴の取得に失敗しました。');
-    }
-  }
 
-  async function handleSubmit(e) {
+      const result = await response.json();
+      setTransactions(result.transactions || []);
+
+    } catch (error) {
+      console.error('取引履歴の取得エラー:', error);
+      setError('取引履歴の取得に失敗しました');
+    }
+  };
+
+  // コンポーネントのマウント時にデータを取得
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await fetchUserData();
+        await fetchTransactions();
+      } catch (error) {
+        console.error('データ読み込みエラー:', error);
+      }
+    };
+    
+    loadData();
+  }, []);
+
+  const handleRecipientChange = async (event) => {
+    const username = event.target.value;
+    console.log('選択されたユーザー名:', username);
+
+    setRecipientUsername(username);
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken.toString();
+
+      // nameパラメータではなく、ユーザー一覧から選択したユーザーのIDを使用
+      const selectedUser = userList.find(user => user.name === username);
+      if (selectedUser) {
+        console.log('設定するrecipientId:', selectedUser.userId, 'for username:', username);
+        setRecipientId(selectedUser.userId);
+      } else {
+        console.error('選択されたユーザーが見つかりません:', username);
+        setError('選択されたユーザーが見つかりません');
+        setRecipientId('');
+      }
+    } catch (error) {
+      console.error('ユーザーID取得エラー:', error);
+      setRecipientId('');
+    }
+  };
+
+  const handleAmountChange = (event) => {
+    setAmount(event.target.value);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setIsLoading(true);
+    setMessage('');
 
-    if (!recipient || !amount) {
-      setError('受取人と枚数を入力してください。');
+    if (!recipientId) {
+      setError('送金先のユーザーを選択してください');
+      setIsLoading(false);
       return;
     }
 
-    if (parseFloat(amount) > sendableBalance) {
-      setError('送付可能な残高が不足しています。');
+    // 自分自身への送金をチェック
+    if (currentUserInfo.userId === recipientId) {
+      setError('自分自身への送金はできません');
+      setIsLoading(false);
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/send', {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken.toString();
+
+      const requestBody = {
+        senderId: currentUserInfo.userId,
+        recipientId: recipientId,
+        amount: Number(amount)
+      };
+
+      console.log('送信データ:', requestBody);
+
+      const response = await fetch(`${cloudFrontUrl}/api/send`, {  // クエリパラメータを削除
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ recipient, amount })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '送付に失敗しました');
+        const errorDetails = await response.json();
+        console.error('API call failed:', errorDetails);
+        throw new Error(`API call failed: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      setSuccess('送付が完了しました！');
-      setSendableBalance(data.newSendableBalance);
-      setRecipient('');
+      const result = await response.json();
+      console.log('送金成功:', result);
+      setSuccess(`${recipientUsername}さんにコインを送金しました！`);
+      setRecipientUsername('');
       setAmount('');
-      fetchTransactions(); // 取引履歴を更新
-    } catch (err) {
-      console.error('送付エラー:', err);
-      setError(err.message || '送付に失敗しました。残高が十分かご確認ください。');
+      await fetchUserData();
+      await fetchTransactions();
+
+    } catch (error) {
+      console.error('送金エラー:', error);
+      setError('送金処理中にエラーが発生しました。');
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      setIsLoading(true);
+      await signOut({ global: true });
+      localStorage.clear();
+      navigate('/', { replace: true });
+      window.location.reload();
+    } catch (error) {
+      console.error('サインアウトエラー:', error);
+      setError('サインアウト中にエラーが発生しました。');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const confirmSignOut = () => {
+    if (window.confirm('本当にサインアウトしますか？')) {
+      handleSignOut();
+    }
+  };
+
+  // 取引履歴の表示用関数
+  const renderTransactionHistory = () => {
+    return transactions.map((tx) => (
+      <div key={tx.transactionId} className={styles.transaction}>
+        <div className={styles.transactionType}>
+          {tx.type === 'sent' ? '送金' : '受取'}
+        </div>
+        <div className={styles.transactionDetails}>
+          <span className={styles.partner}>
+            {tx.type === 'sent' ? `送金先: ${tx.partnerId}` : `送金元: ${tx.partnerId}`}
+          </span>
+          <span className={styles.timestamp}>
+            {new Date(tx.timestamp).toLocaleString()}
+          </span>
+        </div>
+      </div>
+    ));
+  };
 
   return (
     <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
+          <HamburgerMenu isOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
+          <h1 className={styles.headerTitle}>デジコイン送金</h1>
+        </div>
+        <button 
+          onClick={confirmSignOut} 
+          className={styles.signOutButton}
+          disabled={isLoading}
+        >
+          {isLoading ? 'サインアウト中...' : 'サインアウト'}
+        </button>
+      </header>
+
       <div className={styles.card}>
         <div className={styles.userInfo}>
-          <h2 className={styles.title}>ユーザー情報</h2>
-          <p className={styles.userInfoItem}>
-            <span className={styles.label}>ユーザー名:</span>
-            {username} <span className={styles.userId}>(ID: {userId})</span>
+          <h3>ログイン情報</h3>
+          <p className={styles.userDetail}>
+            <span className={styles.userLabel}>ユーザーID:</span>
+            <span className={styles.userId}>{currentUserInfo?.userId}</span>
           </p>
-          <p className={styles.userInfoItem}>
-            <span className={styles.label}>所属コード:</span>
-            {affiliationCode}
+          <p className={styles.userDetail}>
+            <span className={styles.userLabel}>ユーザー名:</span>
+            <span className={styles.username}>{currentUserInfo?.username}</span>
           </p>
         </div>
         <div className={styles.balanceInfo}>
           <div className={styles.balance}>
-            <h3>送付可能残高</h3>
-            <p className={styles.balanceAmount}>{sendableBalance}<span className={styles.currency}>DGC</span></p>
+            <h3>現在の残高</h3>
+            <p className={styles.balanceAmount}>
+              {currentBalance}
+              <span className={styles.currency}>DGC</span>
+            </p>
           </div>
           <div className={styles.balance}>
-            <h3>受取済残高</h3>
-            <p className={styles.balanceAmount}>{receivedBalance}<span className={styles.currency}>DGC</span></p>
+            <h3>合計送付枚数</h3>
+            <p className={styles.balanceAmount}>
+              {totalSent}
+              <span className={styles.currency}>DGC</span>
+            </p>
           </div>
         </div>
       </div>
@@ -158,66 +302,63 @@ export default function SendCoin() {
         <h2 className={styles.title}>DigiCoin送付</h2>
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
+        
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label htmlFor="recipient" className={styles.label}>受取人:</label>
+            <label htmlFor="recipient" className={styles.label}>
+              送金先ユーザー名:
+            </label>
             <select
               id="recipient"
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
+              value={recipientUsername}
+              onChange={handleRecipientChange}
               required
-              className={styles.select}
+              className={styles.input}
+              disabled={isLoading}
             >
               <option value="">選択してください</option>
-              {users.map(user => (
-                <option key={user} value={user}>{user}</option>
+              {userNames.map(name => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
               ))}
             </select>
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="amount" className={styles.label}>枚数:</label>
+            <label htmlFor="amount" className={styles.label}>
+              送金額:
+            </label>
             <input
               type="number"
               id="amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={handleAmountChange}
+              placeholder="金額を入力"
               required
-              min="1"
-              max={sendableBalance}
-              step="1"
               className={styles.input}
+              disabled={isLoading}
             />
           </div>
-          <button type="submit" className={styles.button}>送付</button>
+          <button 
+            type="submit" 
+            className={styles.button}
+            disabled={isLoading}
+          >
+            {isLoading ? '送金中...' : '送金する'}
+          </button>
         </form>
       </div>
 
       <div className={styles.card}>
         <h2 className={styles.title}>取引履歴</h2>
-        {transactions.length > 0 ? (
-          <table className={styles.transactionTable}>
-            <thead>
-              <tr>
-                <th>日時</th>
-                <th>種類</th>
-                <th>相手</th>
-                <th>金額</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map(tx => (
-                <tr key={tx.id} className={tx.type === '送信' ? styles.sendTransaction : styles.receiveTransaction}>
-                  <td>{new Date(tx.timestamp).toLocaleString()}</td>
-                  <td>{tx.type}</td>
-                  <td>{tx.type === '送信' ? tx.recipient : tx.sender}</td>
-                  <td>{tx.amount} DGC</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className={styles.noTransactions}>取引履歴がありません。</p>
-        )}
+        <div className={styles.transactionList}>
+          {renderTransactionHistory()}
+        </div>
+      </div>
+
+      <div className={styles.card}>
+        <h2 className={styles.title}>送金結果</h2>
+        {message && <p className={styles.message}>{message}</p>}
       </div>
     </div>
   );

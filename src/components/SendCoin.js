@@ -233,31 +233,12 @@ export default function SendCoin() {
     }
   };
 
-  // 取引履歴の表示用関数
-  const renderTransactionHistory = () => {
-    return transactions.map((tx) => (
-      <div key={tx.transactionId} className={styles.transaction}>
-        <div className={styles.transactionType}>
-          {tx.type === 'sent' ? '送金' : '受取'}
-        </div>
-        <div className={styles.transactionDetails}>
-          <span className={styles.partner}>
-            {tx.type === 'sent' ? `送金先: ${tx.partnerId}` : `送金元: ${tx.partnerId}`}
-          </span>
-          <span className={styles.timestamp}>
-            {new Date(tx.timestamp).toLocaleString()}
-          </span>
-        </div>
-      </div>
-    ));
-  };
-
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <HamburgerMenu isOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
-          <h1 className={styles.headerTitle}>デジコイン送金</h1>
+          <h1 className={styles.headerTitle}>コイン送付</h1>
         </div>
         <button 
           onClick={confirmSignOut} 
@@ -347,18 +328,6 @@ export default function SendCoin() {
             {isLoading ? '送金中...' : '送金する'}
           </button>
         </form>
-      </div>
-
-      <div className={styles.card}>
-        <h2 className={styles.title}>取引履歴</h2>
-        <div className={styles.transactionList}>
-          {renderTransactionHistory()}
-        </div>
-      </div>
-
-      <div className={styles.card}>
-        <h2 className={styles.title}>送金結果</h2>
-        {message && <p className={styles.message}>{message}</p>}
       </div>
     </div>
   );

@@ -1,84 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import styles from './AllHistory.module.css';
 
-export default function AllHistory() {
+function AllHistory() {
   const [transactions, setTransactions] = useState([]);
-  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('sent');
+  const userId = localStorage.getItem('userId'); // localStorageからuserIdを取得
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  async function fetchTransactions() {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('認証トークンがありません');
-      }
-
-      const response = await fetch('/api/transactions', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '取引履歴の取得に失敗しました');
-      }
-
-      const data = await response.json();
-      setTransactions(data.transactions);
-    } catch (err) {
-      console.error('取引履歴取得エラー:', err);
-      setError('取引履歴の取得に失敗しました: ' + err.message);
+    if (!userId) {
+      console.error('ユーザーIDが取得できませんでした');
+      return;
     }
-  }
+
+    const fetchTransactions = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('トークンが見つかりません');
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://d26ws69lscjxgo.cloudfront.net/api/transactions?userId=${userId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('トランザクションデータ:', data);
+        setTransactions(data.transactions);
+      } catch (error) {
+        console.error('トランザクション取得エラー:', error);
+      }
+    };
+
+    fetchTransactions();
+  }, [userId]);
+
+  const renderTransactionHistory = () => {
+    return transactions
+      .filter(transaction => 
+        (activeTab === 'sent' && transaction.senderId === userId) ||
+        (activeTab === 'received' && transaction.recipientId === userId)
+      )
+      .map((transaction, index) => (
+        <div key={index} className={styles.tableContainer}>
+          <span className={styles.table}>{transaction.timestamp}</span>
+          <span className={styles.table}>{transaction.amount} コイン</span>
+          <span className={styles.table}>{transaction.type}</span>
+        </div>
+      ));
+  };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>取引履歴</h2>
-      {error && <p className={styles.error}>{error}</p>}
-      {transactions.length > 0 ? (
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>日時</th>
-                <th>送信者</th>
-                <th>受信者</th>
-                <th>金額</th>
-                <th>取引ハッシュ</th>
-                <th>詳細</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map(tx => (
-                <tr key={tx.id}>
-                  <td>{new Date(tx.timestamp).toLocaleString()}</td>
-                  <td>{tx.sender || '不明'}</td>
-                  <td>{tx.recipient || '不明'}</td>
-                  <td>{tx.amount} DGC</td>
-                  <td>
-                    <span className={styles.hash} title={tx.transactionHash}>
-                      {tx.transactionHash.slice(0, 10)}...
-                    </span>
-                  </td>
-                  <td>
-                    <Link to={`/transaction/${tx.id}`} className={styles.detailLink}>
-                      詳細を見る
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className={styles.empty}>取引履歴がありません。</p>
-      )}
+      <div className={styles.tabs}>
+        <button className={activeTab === 'sent' ? styles.activeTab : ''} onClick={() => setActiveTab('sent')}>送信履歴</button>
+        <button className={activeTab === 'received' ? styles.activeTab : ''} onClick={() => setActiveTab('received')}>受信履歴</button>
+      </div>
+      <div className={styles.tableContainer}>
+        {transactions.length > 0 ? renderTransactionHistory() : <div className={styles.empty}>取引履歴がありません</div>}
+      </div>
     </div>
   );
 }
+
+export default AllHistory;
 

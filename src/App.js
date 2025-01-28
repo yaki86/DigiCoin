@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 import { getCurrentUser } from '@aws-amplify/auth';
 import LoginForm from './components/LoginForm';
 import SendCoin from './components/SendCoin';
+import AllHistory from './components/AllHistory';
+import HamburgerMenu from './components/HamburgerMenu';
 import './App.css';
 
 const router = {
@@ -37,6 +39,8 @@ function App() {
   return (
     <BrowserRouter future={router.future}>
       <div className="App">
+        <HamburgerMenu />
+
         <Routes>
           <Route 
             path="/" 
@@ -51,6 +55,14 @@ function App() {
             element={
               isLoggedIn ? 
                 <SendCoin /> : 
+                <Navigate to="/" replace />
+            } 
+          />
+          <Route 
+            path="/history" 
+            element={
+              isLoggedIn ? 
+                <AllHistory /> : 
                 <Navigate to="/" replace />
             } 
           />

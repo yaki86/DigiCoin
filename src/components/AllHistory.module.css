@@ -1,18 +1,58 @@
 .container {
-  max-width: 1000px;
-  margin: 0 auto;
   padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .title {
   font-size: 24px;
-  font-weight: bold;
-  text-align: center;
   margin-bottom: 20px;
+  text-align: center;
   color: #333;
+}
+
+.tableContainer {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #ccc;
+}
+
+.tableRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  background-color: #fff;
+  transition: background-color 0.3s;
+}
+
+.tableRow:hover {
+  background-color: #f1f1f1;
+}
+
+.tableCell {
+  flex: 1;
+  text-align: center;
+  padding: 5px;
+  color: #555;
+}
+
+.link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.empty {
+  text-align: center;
+  color: #888;
+  padding: 20px;
 }
 
 .error {
@@ -22,10 +62,6 @@
   border-radius: 4px;
   margin-bottom: 15px;
   text-align: center;
-}
-
-.tableContainer {
-  overflow-x: auto;
 }
 
 .table {
@@ -71,16 +107,6 @@
 
 .hashLink:hover {
   background-color: #d0d7dc;
-}
-
-.empty {
-  text-align: center;
-  color: #666;
-  font-style: italic;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 @media (max-width: 768px) {

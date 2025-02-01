@@ -77,41 +77,11 @@ export default function SendCoin() {
       setError('ユーザー情報の取得に失敗しました');
     }
   };
-
-  // 取引履歴の取得
-  const fetchTransactions = async () => {
-    try {
-      const session = await fetchAuthSession();
-      const token = session.tokens.idToken.toString();
-      const shortUserId = session.userSub.split('-')[0];  // CognitoのIDを短縮
-
-      const response = await fetch(`${cloudFrontUrl}/api/transactions?userId=${shortUserId}`, {  // 短縮IDを使用
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('取引履歴の取得に失敗しました');
-      }
-
-      const result = await response.json();
-      setTransactions(result.transactions || []);
-
-    } catch (error) {
-      console.error('取引履歴の取得エラー:', error);
-      setError('取引履歴の取得に失敗しました');
-    }
-  };
-
   // コンポーネントのマウント時にデータを取得
   useEffect(() => {
     const loadData = async () => {
       try {
         await fetchUserData();
-        await fetchTransactions();
       } catch (error) {
         console.error('データ読み込みエラー:', error);
       }
@@ -202,7 +172,6 @@ export default function SendCoin() {
       setRecipientUsername('');
       setAmount('');
       await fetchUserData();
-      await fetchTransactions();
 
     } catch (error) {
       console.error('送金エラー:', error);
@@ -245,7 +214,7 @@ export default function SendCoin() {
           className={styles.signOutButton}
           disabled={isLoading}
         >
-          {isLoading ? 'サインアウト中...' : 'サインアウト'}
+          {isLoading ? '待機中...' : 'サインアウト'}
         </button>
       </header>
 

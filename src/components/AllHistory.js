@@ -3,7 +3,6 @@ import styles from './AllHistory.module.css';
 
 function AllHistory() {
   const [transactions, setTransactions] = useState([]);
-  const [activeTab, setActiveTab] = useState('sent');
   const userId = localStorage.getItem('userId'); // localStorageからuserIdを取得
 
   useEffect(() => {
@@ -35,7 +34,7 @@ function AllHistory() {
 
         const data = await response.json();
         console.log('トランザクションデータ:', data);
-        setTransactions(data.transactions);
+        setTransactions(data.transactions || []);
       } catch (error) {
         console.error('トランザクション取得エラー:', error);
       }
@@ -45,27 +44,30 @@ function AllHistory() {
   }, [userId]);
 
   const renderTransactionHistory = () => {
-    return transactions
-      .filter(transaction => 
-        (activeTab === 'sent' && transaction.senderId === userId) ||
-        (activeTab === 'received' && transaction.recipientId === userId)
-      )
-      .map((transaction, index) => (
-        <div key={index} className={styles.tableContainer}>
-          <span className={styles.table}>{transaction.timestamp}</span>
-          <span className={styles.table}>{transaction.amount} コイン</span>
-          <span className={styles.table}>{transaction.type}</span>
-        </div>
-      ));
+    return transactions.map((transaction, index) => (
+      <div key={index} className={styles.tableRow}>
+        <span className={styles.tableCell}>{transaction.timestamp}</span>
+        <span className={styles.tableCell}>{transaction.amount} コイン</span>
+        <span className={styles.tableCell}>
+          {transaction.senderId === userId ? '送信' : '受信'}
+        </span>
+        <span className={styles.tableCell}>
+          <a
+            href={`https://sepolia.etherscan.io/tx/${transaction.transactionId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.link}
+          >
+            {transaction.transactionId}
+          </a>
+        </span>
+      </div>
+    ));
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>取引履歴</h2>
-      <div className={styles.tabs}>
-        <button className={activeTab === 'sent' ? styles.activeTab : ''} onClick={() => setActiveTab('sent')}>送信履歴</button>
-        <button className={activeTab === 'received' ? styles.activeTab : ''} onClick={() => setActiveTab('received')}>受信履歴</button>
-      </div>
       <div className={styles.tableContainer}>
         {transactions.length > 0 ? renderTransactionHistory() : <div className={styles.empty}>取引履歴がありません</div>}
       </div>

@@ -38,8 +38,8 @@ function HamburgerMenu({ isOpen, toggleMenu }) {
               </Link>
             </li>
             <li>
-              <Link to="/profile" className={styles.menuItem}>
-                プロフィール
+              <Link to="/ranking" className={styles.menuItem}>
+                ランキング
               </Link>
             </li>
           </ul>

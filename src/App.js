@@ -4,6 +4,7 @@ import { getCurrentUser } from '@aws-amplify/auth';
 import LoginForm from './components/LoginForm';
 import SendCoin from './components/SendCoin';
 import AllHistory from './components/AllHistory';
+import Ranking from './components/Ranking';
 import HamburgerMenu from './components/HamburgerMenu';
 import './App.css';
 
@@ -63,6 +64,14 @@ function App() {
             element={
               isLoggedIn ? 
                 <AllHistory /> : 
+                <Navigate to="/" replace />
+            } 
+          />
+          <Route 
+            path="/ranking" 
+            element={
+              isLoggedIn ? 
+                <Ranking /> : 
                 <Navigate to="/" replace />
             } 
           />

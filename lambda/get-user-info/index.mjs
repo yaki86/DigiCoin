@@ -47,17 +47,18 @@ export const handler = async (event) => {
             };
         }
 
-        // 全ユーザー情報を取得（nameとuserIdのみ）
+        // 全ユーザー情報を取得（name, userId, totalを含む）
         const allUsersParams = {
             TableName: 'DigiCoin-Users',
-            ProjectionExpression: '#name, userId',  // nameとuserIdの両方を取得
-            ExpressionAttributeNames: { '#name': 'name' }
+            ProjectionExpression: '#name, userId, #total',  // name, userId, totalを取得
+            ExpressionAttributeNames: { '#name': 'name', '#total': 'total' } // totalをエイリアスで置き換え
         };
         
         const allUsersResult = await dynamodb.scan(allUsersParams);
         const allUsers = allUsersResult.Items.map(user => ({
             name: user.name,
-            userId: user.userId
+            userId: user.userId,
+            total: user.total // totalを含める
         }));
         
         return {
@@ -74,7 +75,7 @@ export const handler = async (event) => {
         return {
             statusCode: 500,
             headers: corsHeaders,
-            body: JSON.stringify({ message: 'Internal server error' })
+            body: JSON.stringify({ message: 'Internal server error', error: error.message })
         };
     }
 }; 

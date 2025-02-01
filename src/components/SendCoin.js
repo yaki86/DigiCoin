@@ -17,7 +17,6 @@ export default function SendCoin() {
   const [message, setMessage] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [transactions, setTransactions] = useState([]);
   const [currentUserInfo, setCurrentUserInfo] = useState(null);
   const [userList, setUserList] = useState([]);
   const [userNames, setUserNames] = useState([]);
@@ -66,10 +65,11 @@ export default function SendCoin() {
       }
 
       if (Array.isArray(allUsers)) {
-        // ユーザー一覧を状態として保存
-        setUserList(allUsers);  // 完全な情報を保持
-        // セレクトボックス用に名前のみの配列も保存
-        setUserNames(allUsers.map(user => user.name));  // 新しいstate
+        // allUsersにtotalが含まれていることを確認
+        console.log('取得した全ユーザーデータ:', allUsers); // デバッグ用
+        setUserList(allUsers);
+        setUserNames(allUsers.map(user => user.name));
+        localStorage.setItem('allUsers', JSON.stringify(allUsers)); // allUsersをlocalStorageに保存
       }
 
     } catch (error) {

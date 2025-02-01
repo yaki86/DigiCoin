@@ -81,25 +81,6 @@ export const handler = async (event) => {
         const wallet = new ethers.Wallet(await getPrivateKey(), provider);
         const digiCoinContract = new ethers.Contract(digiCoinContractAddress, DigiCoinABI, wallet);
 
-        // コントラクトの存在確認とインターフェース確認を先に行う
-        const code = await provider.getCode(digiCoinContractAddress);
-        console.log('コントラクトコード:', code);
-
-        // コントラクトのオーナーを確認
-        const contractOwner = await digiCoinContract.owner();
-        const walletAddress = await wallet.getAddress();
-        console.log('コントラクト情報:', {
-            owner: contractOwner,
-            sender: walletAddress,
-            isOwner: contractOwner.toLowerCase() === walletAddress.toLowerCase()
-        });
-
-        console.log('コントラクトインターフェース:', {
-            address: digiCoinContractAddress,
-            abi: DigiCoinABI,
-            functions: Object.keys(digiCoinContract.interface.functions)
-        });
-
         // 送金パラメータのログ（既存のコード）
         console.log('送金パラメータ（変換前）:', {
             senderId,
@@ -109,15 +90,10 @@ export const handler = async (event) => {
             recipientIdType: typeof recipientId
         });
 
-        // 文字列を正しくエンコード
-        const from = senderId.toString().trim();
-        const to = recipientId.toString().trim();
-        
-        // 送金額の検証と変換
-        const sendAmount = parseFloat(amount);
-        if (isNaN(sendAmount) || sendAmount <= 0) {
-            throw new Error('無効な送金額です');
-        }
+        // 文字列を直接使用
+        const from = `senderId: ${senderId}`;
+        const to = `recipientId: ${recipientId}`;
+        const sendAmount = `sendAmount: ${amount.toString()}`;
 
         // トランザクションを送信
         try {
@@ -129,6 +105,8 @@ export const handler = async (event) => {
             );
             console.log('トランザクション送信:', tx);
             const receipt = await tx.wait();
+            console.log('トランザクション完了:', receipt);
+            console.log('イベントログ:', receipt.events);
 
             // Use `tx` and `receipt` here
             const transactionDetails = {

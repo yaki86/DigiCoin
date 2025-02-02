@@ -39,6 +39,7 @@ export default function SendCoin() {
       const token = session.tokens.idToken.toString();
       const shortUserId = session.userSub.split('-')[0];
       sessionStorage.setItem('userId', shortUserId); 
+      sessionStorage.setItem('token',token);
 
       const response = await fetch(`${cloudFrontUrl}/api/user?userId=${shortUserId}`, {
         method: 'GET',

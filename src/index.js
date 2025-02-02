@@ -31,9 +31,8 @@ const config = {
   },
   API: {
     REST: {
-      default: {  // APIの名前を'default'に変更
-        endpoint: process.env.REACT_APP_API_ENDPOINT,
-        region: process.env.REACT_APP_REGION
+      api: {  // APIの名前を'api'に変更
+        endpoint: process.env.REACT_APP_API_ENDPOINT
       }
     }
   }

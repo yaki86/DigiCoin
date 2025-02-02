@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signOut, getCurrentUser, fetchAuthSession } from '@aws-amplify/auth';
 import { get, post } from '@aws-amplify/api';
-import HamburgerMenu from './HamburgerMenu';
 import styles from './SendCoin.module.css';
 
-const cloudFrontUrl = 'https://d26ws69lscjxgo.cloudfront.net';
+const cloudFrontUrl = 'https://www.digisui-coin.com';
 
 export default function SendCoin() {
   const navigate = useNavigate();
@@ -39,6 +38,7 @@ export default function SendCoin() {
       const session = await fetchAuthSession();
       const token = session.tokens.idToken.toString();
       const shortUserId = session.userSub.split('-')[0];
+      sessionStorage.setItem('userId', shortUserId); 
 
       const response = await fetch(`${cloudFrontUrl}/api/user?userId=${shortUserId}`, {
         method: 'GET',
@@ -69,7 +69,7 @@ export default function SendCoin() {
         console.log('取得した全ユーザーデータ:', allUsers); // デバッグ用
         setUserList(allUsers);
         setUserNames(allUsers.map(user => user.name));
-        localStorage.setItem('allUsers', JSON.stringify(allUsers)); // allUsersをlocalStorageに保存
+        sessionStorage.setItem('allUsers', JSON.stringify(allUsers)); // allUsersをlocalStorageに保存
       }
 
     } catch (error) {
@@ -204,20 +204,6 @@ export default function SendCoin() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-          <HamburgerMenu isOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
-          <h1 className={styles.headerTitle}>コイン送付</h1>
-        </div>
-        <button 
-          onClick={confirmSignOut} 
-          className={styles.signOutButton}
-          disabled={isLoading}
-        >
-          {isLoading ? '待機中...' : 'サインアウト'}
-        </button>
-      </header>
-
       <div className={styles.card}>
         <div className={styles.userInfo}>
           <h3>ログイン情報</h3>

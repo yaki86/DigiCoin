@@ -1,144 +1,91 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn, signUp, signOut, fetchAuthSession} from '@aws-amplify/auth';
-import { Amplify } from 'aws-amplify';
-import styles from './LoginForm.module.css';
+import { signIn, fetchAuthSession } from 'aws-amplify/auth';
 
-// 手動での設定
-Amplify.configure({
-  Auth: {
-    Cognito: {
-    region: 'ap-northeast-1', // Cognitoのリージョン
-    userPoolId: 'ap-northeast-1_ATf3lqfW1', // ユーザープールID
-    userPoolClientId: '39p229mfp8p85cokfubk6p6c3r', // ユーザープールクライアントID
-    }
-  }
-});
-
-export default function LoginForm({ setIsLoggedIn }) {
-  const [username, setUsername] = useState('');
+function LoginForm() {
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const clearSession = async () => {
-      try {
-        await signOut();
-        setIsLoggedIn(false);
-      } catch (error) {
-        console.error('サインアウトエラー:', error);
-      }
-    };
-    clearSession();
-  }, [setIsLoggedIn]);
-
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
     try {
-      if (isLogin) {
-        const { isSignedIn, nextStep } = await signIn({ username, password });
-        if (isSignedIn) {
-          const session = await fetchAuthSession({ forceRefresh: false });
-          console.log('セッション情報:', session); // デバッグ用
-          const token = session.tokens.idToken;
-          const userId = session.userSub.split('-')[0];
+      const signInResult = await signIn({
+        username: userId,
+        password: password
+      });
 
-          // localStorageにユーザー情報を保存
-          localStorage.setItem('userId', userId);
-          localStorage.setItem('token', token);
-
-          setIsLoggedIn(true);
-          navigate('/send');
-        } else {
-          // 必要に応じて次のステップを処理
-          handleNextSignInStep(nextStep);
-        }
-      } else {
-        await signUp({
-          username,
-          password,
-          options: {
-            userAttributes: {
-              email: username
-            }
-          }
-        });
-        setError('登録が完了しました。ログインしてください。');
-        setIsLogin(true);
+      if (signInResult.isSignedIn) {
+        const session = await fetchAuthSession();
+        const token = session.tokens.idToken.toString();
+        
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('token', token);
+        
+        navigate('/');
       }
     } catch (error) {
       console.error('認証エラー:', error);
-      setError(getErrorMessage(error));
-    }
-  };
-
-  const handleNextSignInStep = (nextStep) => {
-    // 次のサインインステップを処理するロジックをここに追加
-    console.log('次のサインインステップ:', nextStep);
-  };
-
-  const getErrorMessage = (error) => {
-    switch (error.name) {
-      case 'NotAuthorizedException':
-        return 'ユーザー名またはパスワードが正しくありません。';
-      case 'UserNotFoundException':
-        return 'ユーザーが見つかりません。';
-      case 'UserNotConfirmedException':
-        return 'ユーザーの確認が完了していません。';
-      default:
-        return '認証中にエラーが発生しました。もう一度お試しください。';
     }
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.formContainer}>
-        <h2 className={styles.title}>
-          {isLogin ? 'ログイン' : '新規登録'}
-        </h2>
-        {error && <p className={styles.error}>{error}</p>}
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label htmlFor="username" className={styles.label}>ユーザー名:</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className={styles.input}
-              autoComplete={isLogin ? "username" : "new-username"}
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            ログイン
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="user-id" className="sr-only">
+                ユーザーID
+              </label>
+              <input
+                id="user-id"
+                name="userId"
+                type="text"
+                autoComplete="username"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="ユーザーID"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                パスワード
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="パスワード"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
           </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="password" className={styles.label}>パスワード:</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className={styles.input}
-              autoComplete={isLogin ? "current-password" : "new-password"}
-            />
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              ログイン
+            </button>
           </div>
-          <button type="submit" className={styles.submitButton}>
-            {isLogin ? 'ログイン' : '登録'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className={styles.toggleButton}
-          >
-            {isLogin ? '新規登録はこちら' : 'ログインはこちら'}
-          </button>
         </form>
       </div>
     </div>
   );
 }
+
+export default LoginForm;
 

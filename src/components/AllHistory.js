@@ -93,6 +93,12 @@ function AllHistory() {
     setCurrentPage(pageNumber);
   };
 
+  const getTransactionBackground = (transaction) => {
+    return transaction.senderId === userId 
+      ? 'bg-orange-50'  // 送信の場合は薄いオレンジ
+      : 'bg-green-50';  // 受信の場合は薄い緑
+  };
+
   if (loading) {
     return <div className="text-center py-4">読み込み中...</div>;
   }
@@ -107,13 +113,13 @@ function AllHistory() {
       
       <div className="space-y-4">
         {currentTransactions.map((transaction, index) => (
-          <div key={index} className="bg-white shadow rounded-lg p-4">
+          <div key={index} className={`${getTransactionBackground(transaction)} shadow rounded-lg p-4`}>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-500">
                 {formatDate(transaction.timestamp)}
               </span>
               <span className={`${
-                transaction.senderId === userId ? 'text-red-500' : 'text-green-500'
+                transaction.senderId === userId ? 'text-orange-500' : 'text-green-500'
               } flex items-center gap-1`}>
                 <span className="text-sm">
                   {transaction.senderId === userId ? '送信' : '受信'}
@@ -127,7 +133,7 @@ function AllHistory() {
                 {transaction.amount} DGC
               </span>
               <span className={`${
-                transaction.senderId === userId ? 'text-red-500' : 'text-green-500'
+                transaction.senderId === userId ? 'text-orange-500' : 'text-green-500'
               } flex items-center gap-2`}>
                 {getUserName(transaction.senderId === userId ? transaction.recipientId : transaction.senderId)}
               </span>

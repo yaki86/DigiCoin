@@ -46,13 +46,39 @@ function Ranking() {
     };
 
     const rank = index + 1;
-    const badgeColor = badges[index] || 'bg-blue-500';
+    const badgeColor = badges[index] || 'bg-blue-400';
 
     return (
       <span className={`${badgeColor} text-white text-xs font-bold px-3 py-1 rounded-full`}>
         {rank}位
       </span>
     );
+  };
+
+  const getRankBackground = (index) => {
+    const backgrounds = {
+      0: 'bg-yellow-50',
+      1: 'bg-gray-100',
+      2: 'bg-orange-50'
+    };
+    return backgrounds[index] || 'bg-white';
+  };
+
+  const getRankTextColor = (index) => {
+    const colors = {
+      0: 'text-yellow-600',
+      1: 'text-gray-600',
+      2: 'text-orange-600'
+    };
+    return colors[index] || 'text-gray-900';
+  };
+
+  const getTopRankStyles = (index) => {
+    if (index > 2) return '';
+    return 'transform hover:scale-105 transition-transform duration-200 border-2 border-opacity-50 ' + 
+           (index === 0 ? 'border-yellow-400 shadow-lg' :
+            index === 1 ? 'border-gray-400 shadow-md' :
+            'border-orange-400 shadow-md');
   };
 
   if (loading) {
@@ -71,9 +97,9 @@ function Ranking() {
         {rankings.map((user, index) => (
           <div 
             key={user.userId} 
-            className={`bg-white shadow rounded-lg p-4 ${
+            className={`${getRankBackground(index)} shadow rounded-lg p-4 ${
               user.userId === userId ? 'ring-2 ring-blue-500' : ''
-            }`}
+            } ${getTopRankStyles(index)}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -91,7 +117,7 @@ function Ranking() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-lg font-semibold">
+                <div className={`text-lg font-semibold ${getRankTextColor(index)}`}>
                   {user.total.toLocaleString()}
                 </div>
                 <div className="text-xs text-gray-500">

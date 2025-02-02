@@ -22,6 +22,7 @@ export default function SendCoin() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [userCoin, setUserCoin] = useState(0);
+  const [loginId, setLoginId] = useState('');
 
   // ユーザー情報の取得
   const fetchCurrentUser = async () => {
@@ -80,7 +81,7 @@ export default function SendCoin() {
       setError('ユーザー情報の取得に失敗しました');
     }
   };
-  // コンポーネントのマウント時にデータを取得
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -91,6 +92,20 @@ export default function SendCoin() {
     };
     
     loadData();
+  }, []);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        // 現在のユーザー情報を取得
+        const { username } = await getCurrentUser();
+        setLoginId(username);
+      } catch (error) {
+        console.error('ログインID取得エラー:', error);
+      }
+    };
+
+    fetchUserInfo();
   }, []);
 
   const handleRecipientChange = async (event) => {
@@ -235,6 +250,10 @@ export default function SendCoin() {
           <p className={styles.userDetail}>
             <span className={styles.userLabel}>ユーザーID:</span>
             <span className={styles.userId}>{currentUserInfo?.userId}</span>
+          </p>
+          <p className={styles.userDetail}>
+            <span className={styles.userLabel}>ログインID:</span>
+            <span className={styles.userId}>{loginId}</span>
           </p>
           <p className={styles.userDetail}>
             <span className={styles.userLabel}>ユーザー名:</span>

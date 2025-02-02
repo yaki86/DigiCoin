@@ -10,7 +10,7 @@ function AllHistory() {
 
   const formatDate = (dateString) => {
     try {
-      return format(parseISO(dateString), 'yyyy/MM/dd HH:mm:ss');
+      return format(parseISO(dateString), 'MM/dd HH:mm');
     } catch (error) {
       console.error('日付のパースエラー:', error);
       return dateString;
@@ -77,60 +77,56 @@ function AllHistory() {
   }
 
   return (
-    <div className="shadow-lg rounded-lg overflow-hidden mx-4 md:mx-10">
-      <table className="w-full table-fixed">
-        <thead>
-          <tr className="bg-slate-300">
-            <th className="w-1/6 py-4 px-6 text-left text-gray-600 font-bold uppercase">日時</th>
-            <th className="w-1/6 py-4 px-6 text-left text-gray-600 font-bold uppercase">金額</th>
-            <th className="w-1/6 py-4 px-6 text-left text-gray-600 font-bold uppercase">種類</th>
-            <th className="w-1/6 py-4 px-6 text-left text-gray-600 font-bold uppercase">送信者</th>
-            <th className="w-1/6 py-4 px-6 text-left text-gray-600 font-bold uppercase">受信者</th>
-            <th className="w-1/6 py-4 px-6 text-left text-gray-600 font-bold uppercase">取引ID</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white">
-          {transactions.length > 0 ? (
-            transactions.map((transaction, index) => (
-              <tr key={index}>
-                <td className="py-4 px-6 border-b border-gray-200">
-                  {formatDate(transaction.timestamp)}
-                </td>
-                <td className="py-4 px-6 border-b border-gray-200">{transaction.amount} コイン</td>
-                <td className="py-4 px-6 border-b border-gray-200">
-                  <span className={`${
-                    transaction.senderId === userId ? 'bg-red-500' : 'bg-green-500'
-                  } text-white py-1 px-2 rounded-full text-xs`}>
-                    {transaction.senderId === userId ? '送信' : '受信'}
-                  </span>
-                </td>
-                <td className="py-4 px-6 border-b border-gray-200">
-                  {getUserName(transaction.senderId)}
-                </td>
-                <td className="py-4 px-6 border-b border-gray-200">
-                  {getUserName(transaction.recipientId)}
-                </td>
-                <td className="py-4 px-6 border-b border-gray-200 truncate">
-                  <a
-                    href={`https://sepolia.etherscan.io/tx/${transaction.transactionId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    {transaction.transactionId}
-                  </a>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" className="py-4 px-6 text-center border-b border-gray-200">
-                取引履歴がありません
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 className="text-xl font-bold my-4">取引履歴</h2>
+      
+      <div className="space-y-4">
+        {transactions.map((transaction, index) => (
+          <div key={index} className="bg-white shadow rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-gray-500">
+                {formatDate(transaction.timestamp)}
+              </span>
+              <span className={`${
+                transaction.senderId === userId ? 'bg-red-500' : 'bg-green-500'
+              } text-white text-xs px-2 py-1 rounded-full`}>
+                {transaction.senderId === userId ? '送信' : '受信'}
+              </span>
+            </div>
+            
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-lg font-semibold">
+                {transaction.amount} DGC
+              </span>
+              <span className={`${
+                transaction.senderId === userId ? 'text-red-500' : 'text-green-500'
+              }`}>
+                {transaction.senderId === userId 
+                  ? `→ ${getUserName(transaction.recipientId)}` 
+                  : `← ${getUserName(transaction.senderId)}`
+                }
+              </span>
+            </div>
+
+            <div className="text-xs text-gray-500 truncate">
+              <a
+                href={`https://sepolia.etherscan.io/tx/${transaction.transactionId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-700"
+              >
+                {transaction.transactionId}
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {transactions.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          取引履歴がありません
+        </div>
+      )}
     </div>
   );
 }

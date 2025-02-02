@@ -21,6 +21,7 @@ export default function SendCoin() {
   const [userNames, setUserNames] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [userCoin, setUserCoin] = useState(0);
 
   // ユーザー情報の取得
   const fetchCurrentUser = async () => {
@@ -63,6 +64,7 @@ export default function SendCoin() {
         });
         setCurrentBalance(userInfo.balance);
         setTotalSent(userInfo.total);
+        setUserCoin(userInfo.balance);
       }
 
       if (Array.isArray(allUsers)) {
@@ -116,8 +118,16 @@ export default function SendCoin() {
     }
   };
 
-  const handleAmountChange = (event) => {
-    setAmount(event.target.value);
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    if (value && (!Number.isInteger(Number(value)) || Number(value) <= 0)) {
+      setError('送金額は正の整数を入力してください');
+    } else if (value && Number(value) > userCoin) {
+      setError('送金額が保有コインを超えています');
+    } else {
+      setError('');
+    }
+    setAmount(value);
   };
 
   const handleSubmit = async (e) => {
@@ -136,6 +146,20 @@ export default function SendCoin() {
     // 自分自身への送金をチェック
     if (currentUserInfo.userId === recipientId) {
       setError('自分自身への送金はできません');
+      setIsLoading(false);
+      return;
+    }
+
+    // 金額のバリデーション
+    const amountNum = Number(amount);
+    if (!Number.isInteger(amountNum) || amountNum <= 0) {
+      setError('送金額は正の整数を入力してください');
+      setIsLoading(false);
+      return;
+    }
+
+    if (amountNum > userCoin) {
+      setError('送金額が保有コインを超えています');
       setIsLoading(false);
       return;
     }

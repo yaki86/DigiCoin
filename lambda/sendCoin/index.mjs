@@ -126,7 +126,7 @@ export const handler = async (event) => {
             console.log('トランザクション保存成功:', transactionDetails);
 
             // ブロックチェーンの処理が成功した後にDynamoDBを更新
-            const updatedSender = { ...sender, balance: sender.balance - amount, total: sender.total + 1 };
+            const updatedSender = { ...sender, balance: sender.balance - amount, total: sender.total + Number(amount) };
             const updatedRecipient = { ...recipient, balance: recipient.balance + Number(amount) };
 
             await Promise.all([

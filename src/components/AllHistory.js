@@ -68,6 +68,18 @@ function AllHistory() {
     fetchTransactions();
   }, [userId]);
 
+  const SendIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+    </svg>
+  );
+
+  const ReceiveIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+    </svg>
+  );
+
   if (loading) {
     return <div className="text-center py-4">読み込み中...</div>;
   }
@@ -88,9 +100,12 @@ function AllHistory() {
                 {formatDate(transaction.timestamp)}
               </span>
               <span className={`${
-                transaction.senderId === userId ? 'bg-red-500' : 'bg-green-500'
-              } text-white text-xs px-2 py-1 rounded-full`}>
-                {transaction.senderId === userId ? '送信' : '受信'}
+                transaction.senderId === userId ? 'text-red-500' : 'text-green-500'
+              } flex items-center gap-1`}>
+                <span className="text-sm">
+                  {transaction.senderId === userId ? '送信' : '受信'}
+                </span>
+                {transaction.senderId === userId ? <SendIcon /> : <ReceiveIcon />}
               </span>
             </div>
             
@@ -100,11 +115,8 @@ function AllHistory() {
               </span>
               <span className={`${
                 transaction.senderId === userId ? 'text-red-500' : 'text-green-500'
-              }`}>
-                {transaction.senderId === userId 
-                  ? `→ ${getUserName(transaction.recipientId)}` 
-                  : `← ${getUserName(transaction.senderId)}`
-                }
+              } flex items-center gap-2`}>
+                {getUserName(transaction.senderId === userId ? transaction.recipientId : transaction.senderId)}
               </span>
             </div>
 

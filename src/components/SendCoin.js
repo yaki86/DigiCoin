@@ -207,7 +207,7 @@ export default function SendCoin() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.userInfo}>
-          <h3>ログイン情報</h3>
+          <h2 className={styles.headerTitle}>ログイン情報</h2>
           <p className={styles.userDetail}>
             <span className={styles.userLabel}>ユーザーID:</span>
             <span className={styles.userId}>{currentUserInfo?.userId}</span>
@@ -236,7 +236,7 @@ export default function SendCoin() {
       </div>
 
       <div className={styles.card}>
-        <h2 className={styles.title}>DigiCoin送付</h2>
+        <h2 className={styles.headerTitle}>DigiCoin送付</h2>
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         

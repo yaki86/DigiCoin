@@ -23,10 +23,12 @@
 }
 
 .headerTitle {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #4a90e2;
 }
 
 .signOutButton {
@@ -368,7 +370,7 @@
 .userInfo {
   padding: 15px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: none;
 }
 
 .userDetail {

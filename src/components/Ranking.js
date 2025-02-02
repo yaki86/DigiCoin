@@ -37,27 +37,21 @@ function Ranking() {
     fetchUsers();
   }, [userId]);
 
-  const getRankStyle = (index) => {
-    switch(index) {
-      case 0: return 'bg-yellow-50';  // 1位
-      case 1: return 'bg-gray-50';    // 2位
-      case 2: return 'bg-orange-50';  // 3位
-      default: return 'bg-white';
-    }
-  };
-
   const getRankBadge = (index) => {
+    const badges = {
+      0: 'bg-yellow-500',
+      1: 'bg-gray-400',
+      2: 'bg-orange-500'
+    };
+
     const rank = index + 1;
-    switch(index) {
-      case 0:
-        return <span className="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">1位</span>;
-      case 1:
-        return <span className="bg-slate-300 text-white text-xs font-bold px-3 py-1 rounded-full">2位</span>;
-      case 2:
-        return <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">3位</span>;
-      default:
-        return <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{rank}位</span>;
-    }
+    const badgeColor = badges[index] || 'bg-blue-500';
+
+    return (
+      <span className={`${badgeColor} text-white text-xs font-bold px-3 py-1 rounded-full`}>
+        {rank}位
+      </span>
+    );
   };
 
   if (loading) {
@@ -69,31 +63,50 @@ function Ranking() {
   }
 
   return (
-    <div className="shadow-lg rounded-lg overflow-hidden mx-4 md:mx-10 bg-white">
-      <table className="w-full table-fixed">
-        <thead>
-          <tr className="bg-gray-300">
-            <th className="w-1/3 py-4 px-6 text-left text-gray-600 font-bold uppercase">順位</th>
-            <th className="w-1/3 py-4 px-6 text-left text-gray-600 font-bold uppercase">ユーザー名</th>
-            <th className="w-1/3 py-4 px-6 text-left text-gray-600 font-bold uppercase">累計送信額</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rankings.map((user, index) => (
-            <tr key={user.userId} className={getRankStyle(index)}>
-              <td className="py-4 px-6 border-b border-gray-200">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 className="text-xl font-bold my-4">累計送信ランキング</h2>
+      
+      <div className="space-y-3">
+        {rankings.map((user, index) => (
+          <div 
+            key={user.userId} 
+            className={`bg-white shadow rounded-lg p-4 ${
+              user.userId === userId ? 'ring-2 ring-blue-500' : ''
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
                 {getRankBadge(index)}
-              </td>
-              <td className="py-4 px-6 border-b border-gray-200">
-                {user.name}
-              </td>
-              <td className="py-4 px-6 border-b border-gray-200">
-                {user.total} コイン
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <div>
+                  <div className="font-medium">
+                    {user.name}
+                    {user.userId === userId && (
+                      <span className="ml-2 text-xs text-blue-600">(あなた)</span>
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {user.userId}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-semibold">
+                  {user.total.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500">
+                  DGC
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {rankings.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          ランキングデータがありません
+        </div>
+      )}
     </div>
   );
 }

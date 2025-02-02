@@ -24,7 +24,8 @@ function Ranking() {
         }
 
         const sortedUsers = allUsers.sort((a, b) => b.total - a.total);
-        setRankings(sortedUsers);
+        const top10Users = sortedUsers.slice(0, 10);
+        setRankings(top10Users);
         setError(null);
       } catch (error) {
         console.error('ユーザー取得エラー:', error);

@@ -186,6 +186,7 @@ function LoginForm() {
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-2 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                   required
+                  autoComplete="username"
                 />
               </div>
 
@@ -198,6 +199,7 @@ function LoginForm() {
                     onChange={(e) => setDisplayName(e.target.value)}
                     className="w-full px-4 py-2 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                     required
+                    autoComplete="off"
                   />
                   <p className="mt-1 text-xs text-gray-500">
                     ※他のユーザーに表示される名前です
@@ -212,8 +214,11 @@ function LoginForm() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 text-gray-700 bg-white border rounded-lg focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                    className={`w-full px-4 py-2 text-gray-700 bg-white border rounded-lg 
+                      focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40
+                      ${error && isSignUp ? 'border-red-500' : ''}`}
                     required
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"

@@ -8,6 +8,7 @@ node_modules/
 /dist
 /.next
 /out
+/path
 
 # 環境変数
 .env
